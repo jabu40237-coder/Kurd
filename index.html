@@ -6,30 +6,77 @@
     <title>Lokxse | المنصة العالمية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root { --bg-void: #050507; --bg-glass: rgba(15,15,25,0.6); --bg-dashboard:#0a0a0f; --border-glass: rgba(255,255,255,0.08); --text-primary:#fff; --text-secondary:#8b8b95; --accent-lime:#00ff94; --accent-cyan:#00f0ff; --accent-purple:#bd00ff; --accent-red:#ff4d4d; --binance-yellow:#F0B90B; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo',sans-serif; }
+        body { background:var(--bg-void); color:var(--text-primary); overflow-x:hidden; }
+        .hidden { display:none !important; }
+        a { text-decoration:none; color:inherit; cursor:pointer; }
+        
+        .loader-screen { position:fixed; inset:0; background:var(--bg-void); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+        .loader-logo { font-size:3rem; font-weight:900; color:var(--accent-lime); margin-bottom:1rem; text-shadow: 0 0 20px rgba(0,255,148,0.5); }
+        .loader-spinner { width:40px; height:40px; border:4px solid #333; border-top-color:var(--accent-lime); border-radius:50%; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        header { position:sticky; top:0; background:var(--bg-glass); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-glass); z-index:1000; }
+        nav { display:flex; justify-content:space-between; align-items:center; padding:1rem 5%; }
+        .logo { font-size:1.5rem; font-weight:800; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+        .logo i { color:var(--accent-lime); }
+        .nav-links { display:flex; gap:1.5rem; list-style:none; }
+        .nav-links a { color:var(--text-secondary); font-weight:600; transition:0.3s; }
+        .nav-links a:hover { color:var(--accent-lime); }
+        .nav-actions { display:flex; align-items:center; gap:1rem; }
+        .btn-nav { background:var(--accent-lime); color:#000; border:none; padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:bold; }
+        .user-account { display:none; align-items:center; gap:8px; background:var(--bg-glass); border:1px solid var(--border-glass); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; }
+        .user-account.active { display:flex; }
+
+        .section { padding:2rem 5%; max-width:1200px; margin:0 auto; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; }
+        .card { background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:16px; padding:1rem; transition:0.3s; overflow:hidden; }
+        .card:hover { border-color:var(--accent-lime); transform:translateY(-5px); }
+        .btn-primary { background:var(--accent-lime); color:#000; border:none; padding:0.8rem; border-radius:8px; width:100%; cursor:pointer; font-weight:bold; }
+        .btn-admin { background:var(--accent-purple); color:#fff; border:none; padding:0.8rem; border-radius:8px; width:100%; cursor:pointer; font-weight:bold; margin-bottom:1rem; }
+        .btn-danger { background:rgba(255,0,0,0.2); color:var(--accent-red); border:none; padding:0.5rem 1rem; border-radius:8px; cursor:pointer; }
+        .input { width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:8px; color:#fff; margin-bottom:1rem; }
+        
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:2000; display:none; justify-content:center; align-items:center; padding:1rem; }
+        .modal-overlay.active { display:flex; }
+        .modal-content { background:var(--bg-dashboard); border:1px solid var(--border-glass); border-radius:24px; padding:2rem; width:100%; max-width:400px; position:relative; }
+        .close-modal { position:absolute; top:15px; left:15px; background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; }
+        
+        .binance-btn { background:var(--binance-yellow); color:#000; border:none; padding:0.8rem; border-radius:8px; width:100%; cursor:pointer; font-weight:bold; margin-top:1rem; }
+        .network-tabs { display:flex; gap:5px; background:rgba(255,255,255,0.05); padding:5px; border-radius:8px; margin-bottom:1rem; flex-wrap:wrap; }
+        .network-tab { flex:1; padding:0.5rem; text-align:center; cursor:pointer; border-radius:6px; font-size:0.8rem; font-weight:bold; color:var(--text-secondary); }
+        .network-tab.active { background:var(--binance-yellow); color:#000; }
+        .qr-code { width:150px; height:150px; margin:1rem auto; background:#fff; padding:5px; border-radius:8px; display:block; }
+        .wallet-box { background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:6px; word-break:break-all; text-align:center; font-family:monospace; font-size:0.8rem; margin-bottom:1rem; }
+
+        .dash-table { width:100%; border-collapse:collapse; margin-top:1rem; }
+        .dash-table th, .dash-table td { padding:0.8rem; text-align:right; border-bottom:1px solid var(--border-glass); }
+
+        .toast { position:fixed; bottom:20px; right:20px; background:#111; border:1px solid var(--accent-lime); padding:1rem; border-radius:8px; transform:translateX(150%); transition:0.3s; z-index:3000; display:flex; align-items:center; gap:10px; }
+        .toast.show { transform:translateX(0); }
+    </style>
 </head>
 <body>
-    <!-- شاشة التحميل -->
+
     <div id="app-loader" class="loader-screen">
         <div class="loader-logo"><i class="fas fa-bolt"></i> Lokxse</div>
         <div class="loader-spinner"></div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
     <div id="app-container" class="hidden">
-        <header class="glass-nav">
+        <header>
             <nav>
-                <a class="logo" data-route="home"><i class="fas fa-bolt"></i> Lokxse</a>
+                <a class="logo" onclick="navigate('home')"><i class="fas fa-bolt"></i> Lokxse</a>
                 <ul class="nav-links">
-                    <li><a data-route="home">الرئيسية</a></li>
-                    <li><a data-route="store">المتجر الرقمي</a></li>
-                    <li><a data-route="faq">الأسئلة الشائعة</a></li>
-                    <li><a data-route="contact">تواصل معنا</a></li>
+                    <li><a onclick="navigate('home')">الرئيسية</a></li>
+                    <li><a onclick="navigate('store')">المتجر</a></li>
+                    <li><a onclick="navigate('faq')">الأسئلة الشائعة</a></li>
                 </ul>
                 <div class="nav-actions">
-                    <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
-                    <button class="btn-nav" id="loginBtn">دخول</button>
-                    <div class="user-account" id="userAccountBtn"><i class="fas fa-user-circle"></i> <span id="userNameDisplay">حسابي</span></div>
+                    <button class="btn-nav" id="loginBtn" onclick="openAuth()">دخول</button>
+                    <div class="user-account" id="userAccountBtn" onclick="navigate('account')"><i class="fas fa-user-circle"></i> <span id="userNameDisplay">حسابي</span></div>
                 </div>
             </nav>
         </header>
@@ -37,15 +84,505 @@
         <main id="main-content"></main>
         
         <footer style="margin-top:4rem; background:#0a0a0f; border-top:1px solid var(--border-glass); padding:2rem; text-align:center;">
-            <a data-route="privacy" style="color:var(--text-secondary); margin:0 1rem;">سياسة الخصوصية</a>
-            <a data-route="terms" style="color:var(--text-secondary); margin:0 1rem;">الشروط والأحكام</a>
+            <a onclick="navigate('privacy')" style="color:var(--text-secondary); margin:0 1rem;">سياسة الخصوصية</a>
+            <a onclick="navigate('terms')" style="color:var(--text-secondary); margin:0 1rem;">الشروط والأحكام</a>
+            <a onclick="navigate('contact')" style="color:var(--text-secondary); margin:0 1rem;">تواصل معنا</a>
             <p style="color:var(--text-secondary); margin-top:1rem;">&copy; 2024 Lokxse Technologies</p>
         </footer>
     </div>
 
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeAuth()"><i class="fas fa-times"></i></button>
+            <div style="display:flex; gap:5px; background:rgba(255,255,255,0.05); padding:5px; border-radius:10px; margin-bottom:1.5rem;">
+                <button id="loginTab" style="flex:1; border:none; background:var(--accent-lime); color:#000; border-radius:8px; padding:0.8rem; font-weight:bold; cursor:pointer;" onclick="switchTab('login')">دخول</button>
+                <button id="registerTab" style="flex:1; border:none; background:none; color:#8b8b95; border-radius:8px; padding:0.8rem; font-weight:bold; cursor:pointer;" onclick="switchTab('register')">حساب جديد</button>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <input type="email" id="loginEmail" class="input" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="loginPassword" class="input" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-primary">دخول إلى Lokxse</button>
+                <a onclick="forgotPassword()" style="display:block; text-align:center; color:var(--accent-cyan); margin-top:1rem; font-size:0.9rem;">نسيت كلمة المرور؟</a>
+            </form>
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <input type="email" id="regEmail" class="input" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="regPassword" class="input" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-primary">إنشاء الحساب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order & Payment Modal -->
+    <div id="orderModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+            <div id="orderDetailsScreen">
+                <h3 style="text-align:center; margin-bottom:1.5rem;">تأكيد الطلب</h3>
+                <h4 id="modalServiceTitle" style="text-align:center; margin-bottom:1rem;"></h4>
+                <input type="text" id="orderLink" class="input" placeholder="الرابط / المعرف (ID)">
+                <input type="number" id="orderQuantity" class="input" value="1000" min="100" oninput="calculateTotal()" placeholder="الكمية">
+                <div style="background:rgba(0,255,148,0.1); border:1px dashed var(--accent-lime); padding:1rem; border-radius:8px; text-align:center; margin-bottom:1.5rem;">
+                    الإجمالي: <span id="totalPrice" style="color:var(--accent-lime); font-weight:bold; font-size:1.2rem;">0.00$</span>
+                </div>
+                <button class="btn-admin" onclick="payWithBalance()"><i class="fas fa-wallet"></i> الدفع من الرصيد (<span id="balanceInModal">0.00$</span>)</button>
+                <button class="binance-btn" onclick="proceedToPayment()"><i class="fab fa-bitcoin"></i> الدفع عبر Binance</button>
+            </div>
+            <div id="binancePayScreen" class="hidden" style="text-align:center;">
+                <h3 style="color:var(--binance-yellow);"><i class="fab fa-bitcoin"></i> Binance Pay</h3>
+                <p>المبلغ: <span id="cryptoAmount" style="color:var(--binance-yellow); font-size:1.5rem;">0.00</span> $</p>
+                <div class="network-tabs">
+                    <div class="network-tab active" onclick="switchNetwork('payId', this)">Pay ID</div>
+                    <div class="network-tab" onclick="switchNetwork('trc20', this)">TRC20</div>
+                    <div class="network-tab" onclick="switchNetwork('bep20', this)">BEP20</div>
+                    <div class="network-tab" onclick="switchNetwork('btc', this)">BTC</div>
+                </div>
+                <img id="qrCodeImg" src="" class="qr-code" alt="QR">
+                <div class="wallet-box" id="walletAddressDisplay"></div>
+                <button class="binance-btn" onclick="confirmPayment()"><i class="fas fa-check-circle"></i> لقد قمت بالدفع</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"><i class="fas fa-check-circle"></i><div><h4 id="toastTitle">تم</h4><p id="toastMsg"></p></div></div>
 
-    <!-- تشغيل الجافاسكريبت كوحدات (ES6 Modules) -->
-    <script type="module" src="js/main.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7eAsEmQO2UNVi2A0Z1BX2qd0m3SxJG3I",
+            authDomain: "lokxse-db.firebaseapp.com",
+            projectId: "lokxse-db",
+            storageBucket: "lokxse-db.firebasestorage.app",
+            messagingSenderId: "207391415812",
+            appId: "1:207391415812:web:545ff064d5691be52e5f51"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        let servicesData = []; let isAdmin = false; let currentUserBalance = 0;
+        let currentBasePrice = 0; let currentTotal = 0; let selectedNetwork = 'payId'; let isBalanceTopUp = false;
+        
+        const paymentWallets = { 
+            payId: "840435502", 
+            trc20: "TJPweP9Xa9CAUVAn84Z5PryKU318jvNEVd", 
+            bep20: "0x06993c660b9d5d43723cebf924ed1e23e1c19840", 
+            btc: "1PTviGcdZpiMHdbFAURV23ta7qCwzPNxL8" 
+        };
+        
+        const storeProducts = [
+            { id: 'chatgpt', name: 'ChatGPT Plus', price: 20, img: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400' },
+            { id: 'netflix', name: 'Netflix Premium', price: 15, img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400' },
+            { id: 'spotify', name: 'Spotify Premium', price: 10, img: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=400' },
+            { id: 'canva', name: 'Canva Pro', price: 12, img: 'https://images.unsplash.com/photo-1626785774573-4b7997733396?w=400' },
+            { id: 'gplay', name: 'بطاقات Google Play', price: 10, img: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400' },
+            { id: 'steam', name: 'بطاقات Steam', price: 20, img: 'https://images.unsplash.com/photo-1605401317771-317d6ff8d0ff?w=400' },
+            { id: 'pubg', name: 'بطاقات PUBG', price: 5, img: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400' },
+            { id: 'freefire', name: 'بطاقات Free Fire', price: 5, img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400' }
+        ];
+
+        function showToast(title, msg) {
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = msg;
+            document.getElementById('toast').classList.add('show');
+            setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+        }
+
+        function navigate(route) {
+            if (route === 'store') renderStore();
+            else if (route === 'account') renderUserDashboard();
+            else if (route === 'admin') renderAdminDashboard();
+            else if (['faq', 'privacy', 'terms', 'contact'].includes(route)) renderStaticPage(route);
+            else renderHome();
+            window.scrollTo(0, 0);
+        }
+
+        async function renderHome() {
+            document.getElementById('main-content').innerHTML = `
+                <div class="section" style="text-align:center; margin-top:4rem;">
+                    <h1 style="font-size:3rem; color:var(--accent-lime);">منصة Lokxse</h1>
+                    <p style="font-size:1.2rem; color:var(--text-secondary);">الجيل القادم من الخدمات الرقمية والمتجر المتكامل.</p>
+                </div>
+                <div class="section">
+                    <h2>الخدمات المتاحة</h2>
+                    <div class="grid" id="servicesGrid" style="margin-top:2rem;"></div>
+                </div>
+            `;
+            try {
+                const snapshot = await db.collection('services').get();
+                servicesData = [];
+                const grid = document.getElementById('servicesGrid');
+                grid.innerHTML = '';
+                if (snapshot.empty) {
+                    grid.innerHTML = '<p>لا توجد خدمات مضافة حالياً. (المدير يمكنه إضافة خدمات).</p>';
+                } else {
+                    snapshot.forEach(doc => {
+                        let s = doc.data(); s.id = doc.id; servicesData.push(s);
+                        grid.innerHTML += `
+                            <div class="card">
+                                <div style="height:120px; background:url('${s.image}'); background-size:cover; border-radius:8px;"></div>
+                                <h3 style="margin:1rem 0;">${s.title}</h3>
+                                <p style="color:var(--text-secondary); font-size:0.9rem;">${s.desc}</p>
+                                <p style="color:var(--accent-lime); font-weight:bold; margin:0.5rem 0;">${s.price}</p>
+                                <button class="btn-primary" onclick="openOrderModal('${s.id}')">اطلب الآن</button>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderStore() {
+            document.getElementById('main-content').innerHTML = `
+                <div class="section">
+                    <h1 style="margin-bottom:2rem;">المتجر الرقمي</h1>
+                    <div class="grid" id="storeGrid"></div>
+                </div>
+            `;
+            const grid = document.getElementById('storeGrid');
+            storeProducts.forEach(p => {
+                grid.innerHTML += `
+                    <div class="card">
+                        <img src="${p.img}" style="width:100%; height:120px; object-fit:cover; border-radius:8px;">
+                        <h3 style="margin:1rem 0;">${p.name}</h3>
+                        <p style="color:var(--accent-lime); font-weight:bold;">$${p.price}</p>
+                        <button class="btn-primary" onclick="showToast('تم', 'تمت الإضافة للمفضلة!')"><i class="fas fa-heart"></i> أضف للمفضلة</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderStaticPage(page) {
+            const pages = {
+                faq: `<div class="section"><h1>الأسئلة الشائعة</h1><div class="card" style="margin-top:1rem;"><h3>كيف أطلب خدمة؟</h3><p>اختر الخدمة، أدخل الرابط، وادفع عبر بايننس أو رصيدك.</p></div></div>`,
+                privacy: `<div class="section"><h1>سياسة الخصوصية</h1><p>نحن نحمي بياناتك ولا نشاركها مع أي طرف ثالث.</p></div>`,
+                terms: `<div class="section"><h1>الشروط والأحكام</h1><p>يُمنع استخدام خدماتنا لأغراض غير قانونية.</p></div>`,
+                contact: `<div class="section"><h1>تواصل معنا</h1><p>تيليجرام: @Lokxsee</p></div>`
+            };
+            document.getElementById('main-content').innerHTML = pages[page];
+        }
+
+        async function renderUserDashboard() {
+            const user = auth.currentUser;
+            if (!user) { openAuth(); return; }
+            if(isAdmin) { renderAdminDashboard(); return; }
+            
+            const userDoc = await db.collection('users').doc(user.email).get();
+            currentUserBalance = userDoc.exists ? (userDoc.data().balance || 0) : 0;
+            const photo = userDoc.exists && userDoc.data().photoURL ? userDoc.data().photoURL : 'https://via.placeholder.com/150';
+            
+            document.getElementById('main-content').innerHTML = `
+                <div class="section">
+                    <h1>مرحباً، ${user.email.split('@')[0]}</h1>
+                    <div class="grid" style="grid-template-columns: 300px 1fr;">
+                        <div class="card" style="text-align:center;">
+                            <img id="profilePic" src="${photo}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; margin:0 auto;">
+                            <input type="file" id="picUpload" accept="image/*" class="input" style="margin-top:1rem;">
+                            <button class="btn-primary" onclick="uploadPic()">رفع الصورة الشخصية</button>
+                        </div>
+                        <div class="card">
+                            <h3>رصيدك الحالي</h3>
+                            <p style="font-size:2rem; color:var(--accent-lime); font-weight:bold;">$${currentUserBalance.toFixed(2)}</p>
+                            <button class="btn-primary" style="background:var(--binance-yellow); color:#000;" onclick="topUpBalance()">شحن الرصيد عبر Binance</button>
+                            <hr style="border-color:var(--border-glass); margin:1.5rem 0;">
+                            <h3>الإعدادات</h3>
+                            <button class="btn-primary" style="background:var(--accent-purple); color:#fff;" onclick="changePass()">تغيير كلمة المرور</button>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top:2rem;">
+                        <h3>سجل الطلبات</h3>
+                        <table class="dash-table">
+                            <thead><tr><th>الخدمة</th><th>السعر</th><th>الحالة</th></tr></thead>
+                            <tbody id="userOrdersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // Load user orders
+            const ordersTable = document.getElementById('userOrdersTable');
+            ordersTable.innerHTML = '';
+            const orders = await db.collection('orders').where('user', '==', user.email).get();
+            if(orders.empty) ordersTable.innerHTML = '<tr><td colspan="3">لا توجد طلبات حالياً.</td></tr>';
+            orders.forEach(doc => {
+                let o = doc.data();
+                ordersTable.innerHTML += `<tr><td>${o.service}</td><td>${o.price}$</td><td>${o.status}</td></tr>`;
+            });
+        }
+
+        async function renderAdminDashboard() {
+            const user = auth.currentUser;
+            if (!user || user.email !== 'jabu40237@gmail.com') return;
+
+            document.getElementById('main-content').innerHTML = `
+                <div class="section">
+                    <h1>لوحة تحكم المدير 👋</h1>
+                    <div class="card" style="margin-bottom:2rem;">
+                        <h3>إضافة خدمة جديدة</h3>
+                        <form onsubmit="addService(event)">
+                            <input type="text" id="newSrvTitle" class="input" placeholder="اسم الخدمة (مثال: متابعين)" required>
+                            <input type="text" id="newSrvPrice" class="input" placeholder="السعر لكل 1000 (مثال: 5$)" required>
+                            <input type="file" id="newSrvImg" accept="image/*" class="input" required>
+                            <button type="submit" class="btn-admin">إضافة الخدمة</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>الخدمات الحالية</h3>
+                        <table class="dash-table">
+                            <thead><tr><th>الخدمة</th><th>السعر</th><th>إجراء</th></tr></thead>
+                            <tbody id="adminSrvTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="card" style="margin-top:2rem;">
+                        <h3>الطلبات</h3>
+                        <table class="dash-table">
+                            <thead><tr><th>الخدمة</th><th>السعر</th><th>الشبكة</th><th>الحالة</th></tr></thead>
+                            <tbody id="adminOrdersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            const srvTable = document.getElementById('adminSrvTable');
+            srvTable.innerHTML = '';
+            servicesData.forEach(s => {
+                srvTable.innerHTML += `<tr><td>${s.title}</td><td>${s.price}</td><td><button class="btn-danger" onclick="delSrv('${s.id}')">حذف</button></td></tr>`;
+            });
+
+            const ordTable = document.getElementById('adminOrdersTable');
+            ordTable.innerHTML = '';
+            const orders = await db.collection('orders').get();
+            if(orders.empty) ordTable.innerHTML = '<tr><td colspan="4">لا توجد طلبات.</td></tr>';
+            orders.forEach(doc => {
+                let o = doc.data();
+                ordTable.innerHTML += `<tr><td>${o.service}</td><td>${o.price}$</td><td>${o.network}</td><td>${o.status}</td></tr>`;
+            });
+        }
+
+        window.addService = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('newSrvTitle').value;
+            const price = document.getElementById('newSrvPrice').value;
+            const file = document.getElementById('newSrvImg').files[0];
+            if(!file) return showToast('تنبيه', 'اختر صورة');
+            
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.src = ev.target.result;
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.width, h = img.height;
+                    const max = 400;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } } else { if (h > max) { w *= max / h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    await db.collection('services').add({ category: 'general', title, desc: 'خدمة جديدة', price, image: dataUrl });
+                    showToast('تم', 'تمت إضافة الخدمة!');
+                    navigate('home');
+                };
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.delSrv = async (id) => {
+            await db.collection('services').doc(id).delete();
+            showToast('تم', 'تم حذف الخدمة');
+            navigate('admin');
+        };
+
+        window.uploadPic = () => {
+            const file = document.getElementById('picUpload').files[0];
+            if (!file) return showToast('تنبيه', 'اختر صورة أولاً');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.width, h = img.height;
+                    const max = 150;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } } else { if (h > max) { w *= max / h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    try {
+                        await db.collection('users').doc(auth.currentUser.email).update({ photoURL: dataUrl });
+                        document.getElementById('profilePic').src = dataUrl;
+                        showToast('تم', 'تم تحديث صورتك الشخصية!');
+                    } catch (error) { showToast('خطأ', error.message); }
+                };
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.changePass = () => {
+            auth.sendPasswordResetEmail(auth.currentUser.email);
+            showToast('تم', 'تم إرسال رابط تغيير كلمة المرور لإيميلك');
+        };
+
+        // Order & Payment
+        window.openOrderModal = (id) => {
+            if (!auth.currentUser) { openAuth(); return; }
+            const s = servicesData.find(x => x.id === id);
+            if (s) {
+                currentBasePrice = parseFloat(s.price.replace(/[^0-9.]/g, '')) || 1;
+                isBalanceTopUp = false;
+                document.getElementById('modalServiceTitle').innerText = s.title;
+                document.getElementById('orderQuantity').value = 1000;
+                document.getElementById('balanceInModal').innerText = currentUserBalance.toFixed(2) + '$';
+                document.getElementById('orderLink').disabled = false;
+                document.getElementById('orderQuantity').disabled = false;
+                calculateTotal();
+                document.getElementById('orderDetailsScreen').classList.remove('hidden');
+                document.getElementById('binancePayScreen').classList.add('hidden');
+                document.getElementById('orderModal').classList.add('active');
+            }
+        };
+        window.closeOrderModal = () => document.getElementById('orderModal').classList.remove('active');
+
+        window.calculateTotal = () => {
+            const q = parseInt(document.getElementById('orderQuantity').value) || 0;
+            currentTotal = currentBasePrice * (q / 1000);
+            document.getElementById('totalPrice').innerText = currentTotal.toFixed(2) + '$';
+        };
+
+        window.payWithBalance = async () => {
+            if (currentUserBalance < currentTotal) return showToast('خطأ', 'رصيد غير كافي. قم بالشحن أولاً.');
+            try {
+                await db.collection('users').doc(auth.currentUser.email).update({ balance: firebase.firestore.FieldValue.increment(-currentTotal) });
+                await db.collection('orders').add({ user: auth.currentUser.email, service: document.getElementById('modalServiceTitle').innerText, price: currentTotal, network: 'الرصيد الداخلي', status: 'مكتمل' });
+                currentUserBalance -= currentTotal;
+                showToast('تم', 'تم الدفع وتسجيل الطلب بنجاح!');
+                closeOrderModal();
+                navigate('account');
+            } catch (e) { showToast('خطأ', e.message); }
+        };
+
+        window.topUpBalance = () => {
+            const amount = prompt("أدخل المبلغ الذي تريد شحنه (بالدولار):", "10");
+            if (!amount) return;
+            currentTotal = parseFloat(amount) || 0;
+            isBalanceTopUp = true;
+            document.getElementById('modalServiceTitle').innerText = 'شحن رصيد';
+            document.getElementById('orderLink').value = 'شحن رصيد';
+            document.getElementById('orderLink').disabled = true;
+            document.getElementById('orderQuantity').value = 1;
+            document.getElementById('orderQuantity').disabled = true;
+            calculateTotal();
+            document.getElementById('orderDetailsScreen').classList.remove('hidden');
+            document.getElementById('binancePayScreen').classList.add('hidden');
+            document.getElementById('orderModal').classList.add('active');
+        };
+
+        window.proceedToPayment = () => {
+            document.getElementById('orderDetailsScreen').classList.add('hidden');
+            document.getElementById('binancePayScreen').classList.remove('hidden');
+            document.getElementById('cryptoAmount').innerText = currentTotal.toFixed(2);
+            switchNetwork('payId', document.querySelector('.network-tab'));
+        };
+
+        window.switchNetwork = (n, el) => {
+            document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            selectedNetwork = n;
+            document.getElementById('walletAddressDisplay').innerText = paymentWallets[n];
+            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${paymentWallets[n]}`;
+        };
+
+        window.confirmPayment = async () => {
+            try {
+                if (isBalanceTopUp) {
+                    await db.collection('users').doc(auth.currentUser.email).update({ balance: firebase.firestore.FieldValue.increment(currentTotal) });
+                    currentUserBalance += currentTotal;
+                    showToast('تم', 'تم شحن رصيدك بنجاح!');
+                } else {
+                    await db.collection('orders').add({ user: auth.currentUser.email, service: document.getElementById('modalServiceTitle').innerText, price: currentTotal, network: selectedNetwork, status: 'قيد المراجعة' });
+                    showToast('تم', 'تم استلام طلبك وسيتم مراجعته.');
+                }
+                closeOrderModal();
+                navigate('account');
+            } catch (e) { showToast('خطأ', e.message); }
+        };
+
+        // Auth
+        function openAuth() { document.getElementById('authModal').classList.add('active'); }
+        function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
+        function switchTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginTab').style.background = 'var(--accent-lime)';
+                document.getElementById('loginTab').style.color = '#000';
+                document.getElementById('registerTab').style.background = 'none';
+                document.getElementById('registerTab').style.color = '#8b8b95';
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('registerTab').style.background = 'var(--accent-lime)';
+                document.getElementById('registerTab').style.color = '#000';
+                document.getElementById('loginTab').style.background = 'none';
+                document.getElementById('loginTab').style.color = '#8b8b95';
+            }
+        }
+
+        window.forgotPassword = () => {
+            const email = prompt("أدخل بريدك الإلكتروني لاستعادة كلمة المرور:");
+            if (email) {
+                auth.sendPasswordResetEmail(email).then(() => {
+                    showToast('تم', 'تم إرسال رابط استعادة كلمة المرور لبريدك.');
+                }).catch(err => showToast('خطأ', err.message));
+            }
+        };
+
+        window.handleLogin = (e) => {
+            e.preventDefault();
+            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
+                .then(() => { closeAuth(); showToast('مرحباً', 'تم الدخول بنجاح'); })
+                .catch(err => showToast('خطأ', err.message));
+        };
+
+        window.handleRegister = (e) => {
+            e.preventDefault();
+            auth.createUserWithEmailAndPassword(document.getElementById('regEmail').value, document.getElementById('regPassword').value)
+                .then(async (userCred) => {
+                    await db.collection('users').doc(userCred.user.email).set({ balance: 0, photoURL: '' });
+                    closeAuth();
+                    showToast('تم', 'تم إنشاء حسابك بنجاح!');
+                }).catch(err => showToast('خطأ', err.message));
+        };
+
+        // Init
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('app-loader').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                navigate('home');
+            }, 1000);
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    document.getElementById('loginBtn').classList.add('hidden');
+                    document.getElementById('userAccountBtn').classList.add('active');
+                    document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+                    if (user.email === 'jabu40237@gmail.com') {
+                        isAdmin = true;
+                        navigate('admin');
+                    }
+                } else {
+                    document.getElementById('loginBtn').classList.remove('hidden');
+                    document.getElementById('userAccountBtn').classList.remove('active');
+                    isAdmin = false;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
