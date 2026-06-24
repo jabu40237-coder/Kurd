@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokxse | المنصة الرقمية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-void: #050507; --bg-glass: rgba(15, 15, 25, 0.6); --bg-dashboard: #0a0a0f;
+            --border-glass: rgba(255, 255, 255, 0.08); --text-primary: #ffffff; --text-secondary: #8b8b95;
+            --accent-lime: #00ff94; --accent-cyan: #00f0ff; --accent-purple: #bd00ff; --accent-red: #ff4d4d;
+            --binance-yellow: #F0B90B; --bg-input: rgba(255,255,255,0.05);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-void); color: var(--text-primary); overflow-x: hidden; line-height: 1.6; }
+        .bg-mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at 15% 50%, rgba(189, 0, 255, 0.15) 0%, transparent 25%), radial-gradient(circle at 85% 30%, rgba(0, 255, 148, 0.1) 0%, transparent 25%); animation: meshMove 15s infinite alternate; }
+        @keyframes meshMove { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+
+        header { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1200px; z-index: 1000; background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 16px; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; gap: 1rem; }
+        .logo { font-size: 1.4rem; font-weight: 700; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; cursor: pointer; white-space: nowrap; }
+        .logo i { color: var(--accent-lime); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a, .nav-links button { text-decoration: none; color: var(--text-secondary); font-weight: 600; cursor: pointer; background: none; border: none; font-size: 1rem; font-family: 'Cairo'; }
+        .btn-nav { background: var(--accent-lime); color: black; padding: 0.6rem 1.5rem; border-radius: 10px; font-weight: 800; }
+        
+        .main-site.hidden { display: none; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero h1 .gradient-text { background: linear-gradient(90deg, var(--accent-lime), var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .section-container { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; }
+        .tabs-wrapper { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
+        .tab-btn { background: var(--bg-glass); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 0.8rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .tab-btn.active { background: var(--accent-lime); color: black; border-color: var(--accent-lime); }
+        
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .service-card { background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 24px; overflow: hidden; transition: 0.3s; }
+        .service-card:hover { border-color: var(--accent-lime); transform: translateY(-5px); }
+        .service-img { height: 160px; background-size: cover; background-position: center; background-color: #111; }
+        .service-body { padding: 1.5rem; }
+        .price-start { color: var(--accent-lime); font-weight: 700; }
+        .btn-order { background: white; color: black; padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 700; cursor: pointer; border: none; width: 100%; margin-top: 0.5rem; }
+
+        footer { margin-top: 4rem; border-top: 1px solid var(--border-glass); background: rgba(10, 10, 15, 0.5); padding: 3rem 2rem; text-align: center; }
+        .social-links { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+        .social-links a { width: 45px; height: 45px; border-radius: 12px; background: var(--bg-glass); border: 1px solid var(--border-glass); display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; font-size: 1.3rem; }
+
+        .dash-table { width: 100%; border-collapse: collapse; background: var(--bg-glass); border-radius: 16px; overflow: hidden; margin-top: 1rem; }
+        .dash-table th, .dash-table td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--border-glass); }
+        .btn-admin-delete { background: rgba(255, 0, 0, 0.2); color: var(--accent-red); border: none; padding: 0.3rem 0.8rem; border-radius: 8px; cursor: pointer; }
+        .btn-admin-action { background: rgba(0, 255, 148, 0.2); color: var(--accent-lime); border: none; padding: 0.3rem 0.8rem; border-radius: 8px; cursor: pointer; }
+        .admin-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-glass); flex-wrap: wrap; }
+        .admin-tab-btn { background: none; border: none; color: var(--text-secondary); padding: 0.8rem 1.5rem; cursor: pointer; font-weight: 700; border-bottom: 2px solid transparent; }
+        .admin-tab-btn.active { color: var(--accent-purple); border-bottom-color: var(--accent-purple); }
+        .admin-tab-content { display: none; }
+        .admin-tab-content.active { display: block; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #0f0f15; border: 1px solid var(--border-glass); border-radius: 24px; padding: 2rem; width: 100%; max-width: 450px; position: relative; }
+        .close-modal { position: absolute; top: 15px; left: 15px; background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; }
+        .auth-tabs { display: flex; margin-bottom: 1.5rem; background: var(--bg-input); border-radius: 12px; padding: 5px; }
+        .auth-tab { flex: 1; text-align: center; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: 700; color: var(--text-secondary); background: none; border: none; font-family: 'Cairo'; }
+        .auth-tab.active { background: var(--accent-lime); color: black; }
+        .auth-form { display: none; flex-direction: column; gap: 1.2rem; }
+        .auth-form.active { display: flex; }
+        .form-input { width: 100%; padding: 0.8rem 1rem; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 10px; color: white; font-family: 'Cairo'; margin-bottom: 1rem; }
+        .btn-submit { width: 100%; padding: 1rem; background: var(--accent-lime); color: black; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        .link-text { text-align: center; color: var(--accent-cyan); cursor: pointer; text-decoration: none; margin-top: 10px; display: block; font-size: 0.9rem; }
+        
+        .file-input-wrapper { margin-bottom: 1rem; }
+        .file-input-label { display: block; background: var(--bg-input); border: 1px dashed var(--accent-purple); color: var(--text-secondary); padding: 1rem; border-radius: 10px; text-align: center; cursor: pointer; }
+        #imagePreview { max-width: 100px; max-height: 100px; border-radius: 8px; margin-top: 10px; display: none; }
+
+        .binance-btn { background: var(--binance-yellow); color: #000; padding: 1rem; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 1rem; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .balance-btn { background: var(--accent-purple); color: white; padding: 1rem; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 1rem; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .network-tabs { display: flex; gap: 5px; margin-bottom: 1rem; background: var(--bg-input); padding: 5px; border-radius: 10px; flex-wrap: wrap; }
+        .network-tab { flex: 1; padding: 0.5rem; text-align: center; cursor: pointer; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); transition: 0.3s; min-width: 80px; }
+        .network-tab.active { background: var(--binance-yellow); color: black; }
+        .qr-code { width: 180px; height: 180px; margin: 1rem auto; background: white; padding: 10px; border-radius: 12px; }
+        .wallet-box { background: var(--bg-input); padding: 0.8rem; border-radius: 8px; word-break: break-all; font-family: monospace; font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid var(--border-glass); text-align: center; }
+
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #0f0f15; border: 1px solid var(--accent-lime); border-radius: 12px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 10px; color: white; z-index: 3000; transform: translateX(150%); transition: transform 0.4s; }
+        .toast.show { transform: translateX(0); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-mesh"></div>
+
+    <div class="main-site" id="mainSite">
+        <header>
+            <nav>
+                <a class="logo"><i class="fas fa-bolt"></i> Lokxse</a>
+                <ul class="nav-links">
+                    <li><a href="#services">الخدمات</a></li>
+                    <li><button class="btn-nav" id="openAuthModalBtn">دخول</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-tag" style="background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 0.5rem 1.2rem; border-radius: 50px; font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 2rem;">الجيل القادم من الخدمات الرقمية</div>
+            <h1>نفخر بأن نكون <span class="gradient-text">المعيار الذهبي</span><br>لحضورك الرقمي.</h1>
+        </section>
+
+        <section id="services" class="section-container">
+            <div class="tabs-wrapper" id="platformTabs"></div>
+            <div class="services-grid" id="servicesGrid"></div>
+        </section>
+
+        <footer>
+            <a class="logo" style="justify-content: center; margin-bottom: 1rem;"><i class="fas fa-bolt"></i> Lokxse</a>
+            <div class="social-links">
+                <a href="https://t.me/Lokxsee" target="_blank"><i class="fab fa-telegram"></i></a>
+                <a href="https://www.instagram.com/a7r.quran" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- USER DASHBOARD -->
+    <div class="dashboard-overlay" id="userDashboard" style="background:#0a0a0f; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1500; display:none; flex-direction:column; overflow-y:auto;">
+        <div style="display: flex; justify-content: space-between; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-glass);">
+            <a class="logo"><i class="fas fa-bolt"></i> Lokxse</a>
+            <button class="btn-admin-delete" id="userLogoutBtn">تسجيل الخروج</button>
+        </div>
+        <div style="padding: 2rem; max-width: 1000px; margin: 0 auto;">
+            <h1 style="margin-bottom: 2rem;">مرحباً بك 👋</h1>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 1.5rem; border-radius: 16px;">
+                    <h3 style="color: var(--text-secondary); font-size: 0.9rem;">رصيدك الحالي</h3>
+                    <div id="userBalanceDisplay" style="font-size: 2rem; font-weight: 700; color: var(--accent-lime);">0.00$</div>
+                    <button id="topUpBalanceBtn" class="btn-submit" style="margin-top: 1rem; background: var(--binance-yellow); color: black;">شحن الرصيد عبر Binance</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div class="dashboard-overlay" id="dashboardOverlay" style="background:#0a0a0f; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1500; display:none; flex-direction:column; overflow-y:auto;">
+        <div style="display: flex; justify-content: space-between; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; background: #0a0a0f; z-index: 10;">
+            <a class="logo"><i class="fas fa-bolt"></i> Lokxse Panel</a>
+            <button class="btn-admin-delete" id="logoutBtn">تسجيل الخروج</button>
+        </div>
+        <div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+            <h1 style="margin-bottom: 2rem;">مرحباً، <span style="color: var(--accent-lime);">المدير</span> 👋</h1>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-admin-tab="platforms">إدارة المنصات</button>
+                <button class="admin-tab-btn" data-admin-tab="services">إدارة الخدمات</button>
+                <button class="admin-tab-btn" data-admin-tab="orders">إدارة الطلبات</button>
+            </div>
+
+            <div class="admin-tab-content active" id="adminPlatforms">
+                <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); padding: 2rem; border-radius: 16px; margin-bottom: 2rem;">
+                    <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">إضافة منصة جديدة</h2>
+                    <form id="addPlatformForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: center;">
+                        <input type="text" id="newPlatformName" class="form-input" placeholder="اسم المنصة (يوتيوب)" required style="margin-bottom:0;">
+                        <input type="text" id="newPlatformIcon" class="form-input" placeholder="كود الأيقونة (fab fa-youtube)" required style="margin-bottom:0;">
+                        <button type="submit" style="background: var(--accent-cyan); color: black; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; padding: 0.8rem 1.5rem;">إضافة</button>
+                    </form>
+                </div>
+                <table class="dash-table"><thead><tr><th>المنصة</th><th>الأيقونة</th><th>إجراء</th></tr></thead><tbody id="adminPlatformsTable"></tbody></table>
+            </div>
+
+            <div class="admin-tab-content" id="adminServices">
+                <button id="restoreDefaultsBtn" class="btn-admin-action" style="width: 100%; margin-bottom: 2rem; padding: 0.8rem; border-radius: 10px; font-weight: 700; border: none; cursor: pointer;">استرجاع المنصات والخدمات الافتراضية</button>
+                <form id="addServiceForm" style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <select id="newServiceCat" class="form-input" required></select>
+                    <input type="text" id="newServiceTitle" class="form-input" placeholder="نوع الخدمة (مثال: زيادة مشاهدات)" required>
+                    <input type="text" id="newServiceDesc" class="form-input" placeholder="وصف مختصر" required>
+                    <input type="text" id="newServicePrice" class="form-input" placeholder="السعر لكل 1000 (مثال: 2$)" required>
+                    <div class="file-input-wrapper">
+                        <label for="newServiceImgFile" class="file-input-label"><i class="fas fa-image"></i> اختر صورة من الجهاز</label>
+                        <input type="file" id="newServiceImgFile" accept="image/*" style="display: none;">
+                        <input type="hidden" id="newServiceImg" value="">
+                        <img id="imagePreview" src="" alt="Preview">
+                    </div>
+                    <button type="submit" style="background: var(--accent-purple); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; padding: 0.8rem;">إضافة الخدمة</button>
+                </form>
+                <table class="dash-table"><thead><tr><th>الخدمة</th><th>المنصة</th><th>السعر</th><th>إجراء</th></tr></thead><tbody id="adminServicesTable"></tbody></table>
+            </div>
+
+            <div class="admin-tab-content" id="adminOrders">
+                <table class="dash-table"><thead><tr><th>رقم الطلب</th><th>الخدمة</th><th>السعر</th><th>الشبكة</th><th>تغيير الحالة</th></tr></thead><tbody id="adminOrdersTable"></tbody></table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeAuthModal"><i class="fas fa-times"></i></button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth-tab="login">تسجيل الدخول</button>
+                <button class="auth-tab" data-auth-tab="register">حساب جديد</button>
+            </div>
+            <form class="auth-form active" id="loginForm">
+                <input type="email" id="loginEmail" class="form-input" placeholder="البريد الإلكتروني" required>
+                <input type="password" class="form-input" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-submit">دخول</button>
+                <a class="link-text" id="forgotPassLink">نسيت كلمة المرور؟</a>
+            </form>
+            <form class="auth-form" id="registerForm">
+                <input type="text" id="regName" class="form-input" placeholder="الاسم الكامل" required>
+                <input type="email" id="regEmail" class="form-input" placeholder="البريد الإلكتروني" required>
+                <input type="password" class="form-input" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-submit">إنشاء الحساب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ORDER & PAYMENT MODAL -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeOrderModal"><i class="fas fa-times"></i></button>
+            
+            <div id="orderDetailsScreen">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">تأكيد الطلب</h3>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; background: var(--bg-input); padding: 1rem; border-radius: 12px;">
+                    <img id="modalServiceImg" src="" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover;">
+                    <div>
+                        <h4 id="modalServiceTitle" style="font-size: 1.1rem;"></h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">السعر لكل 1000: <span id="modalServiceBasePrice" style="color: var(--accent-lime); font-weight: bold;"></span></p>
+                    </div>
+                </div>
+                <input type="text" class="form-input" id="orderLink" placeholder="الرابط / المعرف (ID)">
+                
+                <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">الكمية المطلوبة:</label>
+                <input type="number" class="form-input" id="orderQuantity" value="1000" min="100" step="100" oninput="calculateTotal()" placeholder="أدخل الكمية (مثال: 2000)">
+                
+                <div style="background: rgba(0, 255, 148, 0.1); border: 1px dashed var(--accent-lime); padding: 1rem; border-radius: 10px; text-align: center; margin-bottom: 1.5rem;">
+                    الإجمالي: <span id="totalPrice" style="color: var(--accent-lime); font-weight: bold; font-size: 1.4rem;">0.00$</span>
+                </div>
+
+                <button class="balance-btn" id="balanceBtn" onclick="payWithBalance()"><i class="fas fa-wallet"></i> الدفع من الرصيد (متاح: <span id="balanceInModal">0.00$</span>)</button>
+                <button class="binance-btn" onclick="proceedToPayment()"><i class="fab fa-bitcoin"></i> الدفع عبر Binance</button>
+            </div>
+
+            <div id="binancePayScreen" style="display: none;">
+                <div style="text-align: center;">
+                    <h3 style="color: var(--binance-yellow); margin-bottom: 0.5rem;"><i class="fab fa-bitcoin"></i> Binance Pay</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">المبلغ المطلوب (بالدولار):</p>
+                    <h2 style="font-size: 2.5rem; margin: 0.5rem 0; color: var(--binance-yellow);"><span id="cryptoAmount">0.00</span> $</h2>
+                    
+                    <div class="network-tabs">
+                        <div class="network-tab active" onclick="switchNetwork('payId', this)">Pay ID</div>
+                        <div class="network-tab" onclick="switchNetwork('trc20', this)">USDT TRC20</div>
+                        <div class="network-tab" onclick="switchNetwork('erc20', this)">ETH ERC20</div>
+                        <div class="network-tab" onclick="switchNetwork('btc', this)">BTC</div>
+                    </div>
+                    
+                    <img id="qrCodeImg" src="" class="qr-code" alt="QR Code">
+                    <div class="wallet-box" id="walletAddressDisplay">جاري التحميل...</div>
+                    <button class="binance-btn" onclick="confirmPayment()"><i class="fas fa-check-circle"></i> لقد قمت بالدفع</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><div><h4 id="toastTitle">تم</h4><p id="toastMsg" style="font-size: 0.85rem; color: var(--text-secondary);"></p></div></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7eAsEmQO2UNVi2A0Z1BX2qd0m3SxJG3I",
+            authDomain: "lokxse-db.firebaseapp.com",
+            projectId: "lokxse-db",
+            storageBucket: "lokxse-db.firebasestorage.app",
+            messagingSenderId: "207391415812",
+            appId: "1:207391415812:web:545ff064d5691be52e5f51"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let platformsData = [];
+        let servicesData = {};
+        let ordersData = [];
+        let currentTab = '';
+        let isAdmin = false;
+        let currentBasePrice = 0;
+        let currentTotal = 0;
+        let selectedNetwork = 'payId';
+        let isBalanceTopUp = false; 
+        let currentUserEmail = '';
+        let currentUserBalance = 0;
+        
+        const paymentWallets = {
+            payId: "840435502",
+            trc20: "TJPweP9Xa9CAUVAn84Z5PryKU318jvNEVd",
+            erc20: "0x06993c660b9d5d43723cebf924ed1e23e1c19840",
+            btc: "1PTviGcdZpiMHdbFAURV23ta7qCwzPNxL8"
+        };
+
+        // منصات افتراضية مقترحة لتكون الموقع مليء بالخدمات فور إطلاقه
+        const defaultPlatforms = [
+            { id: 'instagram', name: 'انستغرام', icon: 'fab fa-instagram' },
+            { id: 'tiktok', name: 'تيك توك', icon: 'fab fa-tiktok' },
+            { id: 'facebook', name: 'فيسبوك', icon: 'fab fa-facebook' },
+            { id: 'youtube', name: 'يوتيوب', icon: 'fab fa-youtube' }
+        ];
+
+        // خدمات حقيقية ومتنوعة لكل منصة
+        const defaultServices = [
+            // Instagram
+            { category: 'instagram', title: 'زيادة متابعين انستغرام', desc: 'متابعين حقيقيين عالي الجودة، ضمان 6 أشهر.', price: '10$', image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=500&q=80' },
+            { category: 'instagram', title: 'زيادة لايكات انستغرام', desc: 'تفاعل فوري وبسرعة فائقة على منشوراتك.', price: '5$', image: 'https://images.unsplash.com/photo-1563941892184-5b1d2e3e3f3d?w=500&q=80' },
+            { category: 'instagram', title: 'زيادة مشاهدات الريلز', desc: 'رفع مشاهدات فيديوهات الريلز للترند.', price: '2$', image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=500&q=80' },
+            { category: 'instagram', title: 'زيادة تعليقات انستغرام', desc: 'تعليقات حقيقية ومخصصة لمنشوراتك.', price: '15$', image: 'https://images.unsplash.com/photo-1595211878683-2b1ec3e2e5d6?w=500&q=80' },
+            // TikTok
+            { category: 'tiktok', title: 'زيادة متابعين تيك توك', desc: 'متابعين عالميين لحسابك بسرعة آمنة.', price: '8$', image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=80' },
+            { category: 'tiktok', title: 'زيادة مشاهدات تيك توك', desc: 'وصول الفيديوهات لصفحة For You.', price: '1$', image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=500&q=80' },
+            { category: 'tiktok', title: 'زيادة لايكات تيك توك', desc: 'تفعيل التفاعل على فيديوهاتك فوراً.', price: '3$', image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80' },
+            // Facebook
+            { category: 'facebook', title: 'متابعين صفحة فيسبوك', desc: 'زيادة متابعين صفحتك الشخصية أو التجارية.', price: '12$', image: 'https://images.unsplash.com/photo-1633613286848-e6f43bbafb8d?w=500&q=80' },
+            { category: 'facebook', title: 'لايكات منشور فيسبوك', desc: 'تفاعل حقيقي على منشوراتك في فيسبوك.', price: '6$', image: 'https://images.unsplash.com/photo-1575505585586-6f6d4f6e1c0c?w=500&q=80' },
+            // YouTube
+            { category: 'youtube', title: 'زيادة مشتركين يوتيوب', desc: 'مشتركين قناتك بنسبة ثبات عالية.', price: '20$', image: 'https://images.unsplash.com/photo-1611162616305-c69b3037c7bb?w=500&q=80' },
+            { category: 'youtube', title: 'زيادة مشاهدات يوتيوب', desc: 'رفع عدد مشاهدات فيديوهاتك بسرعة.', price: '4$', image: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=500&q=80' },
+            { category: 'youtube', title: 'ساعات مشاهدة يوتيوب', desc: 'زيادة ساعات المشاهدة لتفعيل الربح.', price: '50$', image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80' }
+        ];
+
+        function showToast(title, msg) {
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = msg;
+            document.getElementById('toast').classList.add('show');
+            setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+        }
+
+        async function loadUserData(email) {
+            currentUserEmail = email;
+            const userRef = db.collection('users').doc(email);
+            const doc = await userRef.get();
+            if (!doc.exists) {
+                await userRef.set({ balance: 50.00 }); 
+                currentUserBalance = 50.00;
+            } else {
+                currentUserBalance = doc.data().balance || 0;
+            }
+            document.getElementById('userBalanceDisplay').innerText = currentUserBalance.toFixed(2) + '$';
+            document.getElementById('balanceInModal').innerText = currentUserBalance.toFixed(2) + '$';
+            document.getElementById('userDashboard').style.display = 'flex';
+        }
+
+        function renderTabs() {
+            const tabsWrapper = document.getElementById('platformTabs');
+            tabsWrapper.innerHTML = '';
+            platformsData.forEach((p, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${index === 0 ? 'active' : ''}`;
+                btn.dataset.tab = p.id;
+                btn.innerHTML = `<i class="${p.icon}"></i> ${p.name}`;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTab = p.id;
+                    renderServices();
+                });
+                tabsWrapper.appendChild(btn);
+            });
+            if (platformsData.length > 0) currentTab = platformsData[0].id;
+            renderServices();
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = '';
+            if (servicesData[currentTab] && servicesData[currentTab].length > 0) {
+                servicesData[currentTab].forEach(service => {
+                    grid.innerHTML += `<div class="service-card"><div class="service-img" style="background-image: url('${service.image}')"></div><div class="service-body"><h3>${service.title}</h3><p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;">${service.desc}</p><p style="margin-bottom: 1rem;">يبدأ من: <span class="price-start">${service.price}</span> لكل 1000</p><button class="btn-order" onclick="openOrderModal('${service.id}', '${service.category}')">اطلب الآن</button></div></div>`;
+                });
+            } else { grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1;">لا توجد خدمات في هذا القسم حالياً.</p>'; }
+        }
+
+        function renderAdminPlatforms() {
+            const table = document.getElementById('adminPlatformsTable');
+            table.innerHTML = '';
+            platformsData.forEach(p => {
+                table.innerHTML += `<tr><td>${p.name}</td><td><i class="${p.icon}"></i></td><td><button class="btn-admin-delete" onclick="deletePlatform('${p.id}')">حذف</button></td></tr>`;
+            });
+            const select = document.getElementById('newServiceCat');
+            select.innerHTML = '';
+            platformsData.forEach(p => { select.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+        }
+
+        function renderAdminServices() {
+            const table = document.getElementById('adminServicesTable');
+            table.innerHTML = '';
+            for (const cat in servicesData) {
+                servicesData[cat].forEach(service => {
+                    table.innerHTML += `<tr><td>${service.title}</td><td>${cat}</td><td>${service.price}</td><td><button class="btn-admin-delete" onclick="deleteService('${service.id}', '${cat}')">حذف</button></td></tr>`;
+                });
+            }
+        }
+
+        function renderAdminOrders() {
+            const table = document.getElementById('adminOrdersTable');
+            table.innerHTML = '';
+            ordersData.forEach(order => {
+                table.innerHTML += `<tr><td>#${order.id.substring(0,5)}</td><td>${order.service}</td><td>${order.price}$</td><td>${order.network}</td><td><button class="btn-admin-action" onclick="completeOrder('${order.id}', this)">إكمال</button></td></tr>`;
+            });
+        }
+
+        async function loadData() {
+            const platformsSnapshot = await db.collection('platforms').get();
+            platformsData = [];
+            servicesData = {};
+            platformsSnapshot.forEach(doc => {
+                const data = doc.data(); data.id = doc.id;
+                platformsData.push(data);
+                servicesData[data.id] = [];
+            });
+            renderTabs();
+            if (isAdmin) renderAdminPlatforms();
+
+            const servicesSnapshot = await db.collection('services').get();
+            servicesSnapshot.forEach(doc => {
+                const data = doc.data(); data.id = doc.id;
+                if (servicesData[data.category]) servicesData[data.category].push(data);
+            });
+            renderServices();
+            if (isAdmin) renderAdminServices();
+
+            if (isAdmin) {
+                const ordersSnapshot = await db.collection('orders').get();
+                ordersData = [];
+                ordersSnapshot.forEach(doc => { const data = doc.data(); data.id = doc.id; ordersData.push(data); });
+                renderAdminOrders();
+            }
+        }
+
+        document.getElementById('restoreDefaultsBtn').addEventListener('click', async () => {
+            try { 
+                for (let p of defaultPlatforms) { await db.collection('platforms').doc(p.id).set(p); }
+                for (let s of defaultServices) { await db.collection('services').add(s); } 
+                await loadData(); 
+                showToast('تم', 'تمت إضافة جميع المنصات والخدمات الافتراضية!'); 
+            } catch (error) { showToast('خطأ', 'حدث خطأ.'); }
+        });
+
+        document.getElementById('addPlatformForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newPlatformName').value;
+            const icon = document.getElementById('newPlatformIcon').value;
+            const id = name.toLowerCase().replace(/\s/g, '_');
+            try { await db.collection('platforms').doc(id).set({ name, icon }); showToast('تم', 'أضيفت المنصة!'); e.target.reset(); loadData(); } catch (error) { showToast('خطأ', 'لم يتم الحفظ.'); }
+        });
+
+        window.deletePlatform = async (id) => {
+            if(!confirm("حذف المنصة سيحذف خدماتها أيضاً. متأكد؟")) return;
+            try { 
+                await db.collection('platforms').doc(id).delete();
+                const servicesToDelete = servicesData[id] || [];
+                for (let s of servicesToDelete) { await db.collection('services').doc(s.id).delete(); }
+                showToast('تم', 'تم حذف المنصة.'); loadData(); 
+            } catch (error) { showToast('خطأ', 'لم يتم الحذف.'); }
+        };
+
+        document.getElementById('newServiceImgFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.width, h = img.height;
+                    const max = 400;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } } else { if (h > max) { w *= max / h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    document.getElementById('newServiceImg').value = canvas.toDataURL('image/jpeg', 0.7);
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = document.getElementById('newServiceImg').value;
+                    preview.style.display = 'block';
+                    showToast('تم', 'تم تحميل الصورة!');
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('addServiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cat = document.getElementById('newServiceCat').value;
+            const title = document.getElementById('newServiceTitle').value;
+            const desc = document.getElementById('newServiceDesc').value;
+            const price = document.getElementById('newServicePrice').value;
+            const image = document.getElementById('newServiceImg').value;
+            if (!image) { showToast('تنبيه', 'الرجاء اختيار صورة.'); return; }
+            try { await db.collection('services').add({ category: cat, title, desc, price, image }); showToast('تم', 'أضيفت الخدمة!'); e.target.reset(); document.getElementById('imagePreview').style.display = 'none'; loadData(); } catch (error) { showToast('خطأ', 'لم يتم الحفظ.'); }
+        });
+
+        window.deleteService = async (id, cat) => { try { await db.collection('services').doc(id).delete(); showToast('تم', 'تم الحذف.'); loadData(); } catch (error) { showToast('خطأ', 'لم يتم الحذف.'); } };
+        window.completeOrder = async (id, btn) => { try { await db.collection('orders').doc(id).update({ status: 'مكتمل' }); btn.style.display = 'none'; showToast('تم', 'تم تحديث الطلب.'); } catch (e) { showToast('خطأ', 'لم يتم التحديث.'); } };
+
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`admin${btn.dataset.adminTab.charAt(0).toUpperCase() + btn.dataset.adminTab.slice(1)}`).classList.add('active');
+            });
+        });
+
+        document.getElementById('openAuthModalBtn').addEventListener('click', () => document.getElementById('authModal').classList.add('active'));
+        document.getElementById('closeAuthModal').addEventListener('click', () => document.getElementById('authModal').classList.remove('active'));
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                tab.classList.add('active'); document.getElementById(`${tab.dataset.authTab}Form`).classList.add('active');
+            });
+        });
+
+        document.getElementById('forgotPassLink').addEventListener('click', (e) => { e.preventDefault(); const email = prompt("أدخل بريدك لاستعادة كلمة المرور:"); if (email) showToast("تم", "رابط الاستعادة تم إرساله (تجريبي)."); });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('mainSite').style.display = 'none';
+            if (email === 'jabu40237@gmail.com') {
+                isAdmin = true;
+                document.getElementById('dashboardOverlay').style.display = 'flex';
+                loadData();
+                showToast('مرحباً المدير', 'تم الدخول بنجاح');
+            } else {
+                isAdmin = false;
+                loadUserData(email); 
+                showToast('مرحباً', 'تم الدخول لحسابك');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value;
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('mainSite').style.display = 'none';
+            isAdmin = false;
+            loadUserData(email);
+            showToast('تم', 'تم إنشاء حسابك بنجاح!');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => { isAdmin = false; document.getElementById('dashboardOverlay').style.display = 'none'; document.getElementById('mainSite').style.display = 'block'; });
+        document.getElementById('userLogoutBtn').addEventListener('click', () => { document.getElementById('userDashboard').style.display = 'none'; document.getElementById('mainSite').style.display = 'block'; });
+
+        window.openOrderModal = (id, cat) => {
+            const service = servicesData[cat].find(s => s.id === id);
+            if (service) {
+                currentBasePrice = parseFloat(service.price.replace(/[^0-9.]/g, '')) || 1;
+                isBalanceTopUp = false; 
+                document.getElementById('modalServiceImg').src = service.image;
+                document.getElementById('modalServiceTitle').innerText = service.title;
+                document.getElementById('modalServiceBasePrice').innerText = currentBasePrice.toFixed(2) + '$';
+                document.getElementById('orderQuantity').value = 1000; calculateTotal();
+                document.getElementById('orderDetailsScreen').style.display = 'block';
+                document.getElementById('binancePayScreen').style.display = 'none';
+                document.getElementById('orderModal').classList.add('active');
+                document.getElementById('balanceInModal').innerText = currentUserBalance.toFixed(2) + '$';
+                
+                document.getElementById('orderLink').disabled = false;
+                document.getElementById('orderQuantity').disabled = false;
+                document.getElementById('balanceBtn').style.display = 'flex';
+            }
+        };
+        document.getElementById('closeOrderModal').addEventListener('click', () => document.getElementById('orderModal').classList.remove('active'));
+
+        window.calculateTotal = () => {
+            const qty = parseInt(document.getElementById('orderQuantity').value) || 0;
+            currentTotal = currentBasePrice * (qty / 1000);
+            document.getElementById('totalPrice').innerText = currentTotal.toFixed(2) + '$';
+        };
+
+        window.payWithBalance = async () => {
+            if (currentUserBalance < currentTotal) {
+                showToast('رصيد غير كافي', 'الرجاء شحن رصيدك عبر بايننس أولاً.');
+                return;
+            }
+            try {
+                await db.collection('users').doc(currentUserEmail).update({
+                    balance: firebase.firestore.FieldValue.increment(-currentTotal)
+                });
+                await db.collection('orders').add({
+                    service: document.getElementById('modalServiceTitle').innerText,
+                    link: document.getElementById('orderLink').value,
+                    price: currentTotal,
+                    network: 'الرصيد الداخلي',
+                    status: 'مدفوع ومكتمل',
+                    date: new Date().toLocaleDateString()
+                });
+                currentUserBalance -= currentTotal;
+                document.getElementById('userBalanceDisplay').innerText = currentUserBalance.toFixed(2) + '$';
+                showToast('تم الطلب', 'تم الدفع من رصيدك بنجاح وتسجيل الطلب.');
+                document.getElementById('orderModal').classList.remove('active');
+            } catch (error) { showToast('خطأ', 'حدث خطأ أثناء الدفع.'); }
+        };
+
+        document.getElementById('topUpBalanceBtn').addEventListener('click', () => {
+            const amountStr = prompt("أدخل المبلغ الذي تريد شحنه (بالدولار):", "10");
+            if (!amountStr) return;
+            currentTotal = parseFloat(amountStr) || 0;
+            isBalanceTopUp = true; 
+            document.getElementById('modalServiceImg').src = 'https://images.unsplash.com/photo-1518183095473-1c7c5f6c6d6b?w=500&q=80';
+            document.getElementById('modalServiceTitle').innerText = 'شحن الرصيد';
+            document.getElementById('modalServiceBasePrice').innerText = currentTotal.toFixed(2) + '$';
+            document.getElementById('orderLink').value = 'شحن رصيد';
+            document.getElementById('orderLink').disabled = true;
+            document.getElementById('orderQuantity').value = 1;
+            document.getElementById('orderQuantity').disabled = true;
+            calculateTotal();
+            document.getElementById('orderDetailsScreen').style.display = 'block';
+            document.getElementById('binancePayScreen').style.display = 'none';
+            document.getElementById('balanceBtn').style.display = 'none'; 
+            document.getElementById('orderModal').classList.add('active');
+        });
+
+        window.proceedToPayment = () => {
+            document.getElementById('orderDetailsScreen').style.display = 'none';
+            document.getElementById('binancePayScreen').style.display = 'block';
+            document.getElementById('cryptoAmount').innerText = currentTotal.toFixed(2);
+            switchNetwork('payId', document.querySelector('.network-tab')); 
+        };
+
+        window.switchNetwork = (net, el) => {
+            document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            selectedNetwork = net;
+            document.getElementById('walletAddressDisplay').innerText = paymentWallets[net];
+            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${paymentWallets[net]}`;
+        };
+
+        window.confirmPayment = async () => {
+            try {
+                if (isBalanceTopUp) {
+                    await db.collection('users').doc(currentUserEmail).update({
+                        balance: firebase.firestore.FieldValue.increment(currentTotal)
+                    });
+                    currentUserBalance += currentTotal;
+                    document.getElementById('userBalanceDisplay').innerText = currentUserBalance.toFixed(2) + '$';
+                    showToast('تم الشحن', 'تمت إضافة المبلغ لرصيدك بنجاح!');
+                } else {
+                    await db.collection('orders').add({
+                        service: document.getElementById('modalServiceTitle').innerText,
+                        link: document.getElementById('orderLink').value,
+                        price: currentTotal,
+                        network: selectedNetwork,
+                        status: 'قيد المراجعة',
+                        date: new Date().toLocaleDateString()
+                    });
+                    showToast('تم استلام الطلب', 'سيتم مراجعة الدفع وتنفيذ طلبك قريباً.');
+                }
+                document.getElementById('orderModal').classList.remove('active');
+                document.getElementById('orderLink').disabled = false;
+                document.getElementById('orderQuantity').disabled = false;
+                document.getElementById('balanceBtn').style.display = 'flex';
+            } catch (error) { showToast('خطأ', 'حدث خطأ أثناء حفظ البيانات.'); }
+        };
+
+        window.addEventListener('load', loadData);
+    </script>
+</body>
+</html>
